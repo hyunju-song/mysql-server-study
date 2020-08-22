@@ -3,8 +3,10 @@ CREATE DATABASE chat;
 USE chat;
 
 CREATE TABLE messages (
-  
+  `id` int PRIMARY KEY AUTO_INCREMENT
 );
+
+DESC messages;
 
 
 /* Create other tables and define schemas for them here! */
