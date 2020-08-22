@@ -1,5 +1,8 @@
+/*eslint-disable */
+
 var express = require('express');
 var db = require('./db');
+
 
 // Middleware
 var morgan = require('morgan');
@@ -30,3 +33,5 @@ if (!module.parent) {
   console.log('Listening on', app.get('port'));
 }
 
+
+//앱.js -> 클라이언트 -> 컨트롤러 -> 모델 -> DB * SQL
