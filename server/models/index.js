@@ -7,18 +7,17 @@ const connection = require('../db');
 
 module.exports = {
   messages: {
-    get: function () {
-      db.query('SELECT * from messages', (error, rows) => {
-          if (error) {
-            throw error} 
-        console.log('User info is: ', rows);
+    get: function (callback) {
+     var queryStr = `SELECT messages.id, messages.text, messages.roomname, users.username FROM messages
+        left join users ON messages.user_id = users.id`
+      db.query(queryStr, (error, results) => {
+          callback(error, results)
       });
     }, // a function which produces all the messages
-    post: function () {
-      db.query('INSERT INTO messages(users_id, roomname, text)  VALUE((select id from users where username = ? limit 1), ?, ?)', [users_id, roomname, text], (error, rows) => {
-        if (error) {
-          throw error}  
-      console.log('User info is: ', rows);
+    post: function (params, callback) {
+      var queryStr = 'INSERT INTO messages(users_id, roomname, text)  VALUE((select id from users where username = ? limit 1), ?, ?)'
+      db.query(queryStr, params, (error, results) => {
+        callback(error, results);
     });
     } // a function which can be used to insert a message into the database
   },
@@ -26,21 +25,59 @@ module.exports = {
   users: {
     // Ditto as above.
     //db와 모델 연결 후 sql 보여주기
-    get: function () {
-       db.query('SELECT * from users', (error, rows) => {
-          if (error) {
-            throw error}  
-        console.log('User info is: ', rows);
+    get: function (callback) {
+      var queryStr = 'SELECT * from users'
+       db.query(queryStr, (error, results) => {
+          callback(error, results)
       });
     },
-    post: function () {
-      db.query('INSERT INTO users(username) VALUE(?)', [username], (error, rows) => {
-        if (error) {
-          throw error}  
-      console.log('User info is: ', rows);
+    post: function (callback) {
+      var queryStr = 'INSERT INTO users(username) VALUE(?)'
+      db.query(queryStr, [username], (error, results) => {
+        callback(error,results)
     })
   }
 }
 
 };
+
+//레퍼런스코드
+// module.exports = {
+//   messages: {
+//     get: function(callback) {
+//       // fetch all messages
+//       // text, username, roomname, id
+//       var queryStr = `select messages.id, messages.text, messages.roomname, users.username
+//         from messages left outer join users on (messages.userid = users.id)
+//         order by messages.id desc`;
+//       db.query(queryStr, function(err, results) {
+//         callback(err, results);
+//       });
+//     },
+//     post: function(params, callback) {
+//       // create a message for a user id based on the given username
+//       var queryStr = `insert into messages(text, userid, roomname)
+//                       value (?, (select id from users where username = ? limit 1), ?)`;
+//       db.query(queryStr, params, function(err, results) {
+//         callback(err, results);
+//       });
+//     }
+//   },
+//   users: {
+//     get: function(callback) {
+//       // fetch all users
+//       var queryStr = "select * from users";
+//       db.query(queryStr, function(err, results) {
+//         callback(err, results);
+//       });
+//     },
+//     post: function(params, callback) {
+//       // create a user
+//       var queryStr = "insert into users(username) values (?)";
+//       db.query(queryStr, params, function(err, results) {
+//         callback(err, results);
+//       });
+//     }
+//   }
+// };
 
