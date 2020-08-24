@@ -29,7 +29,7 @@ let room = document.querySelector("#input-room");
 let submit = document.querySelector("#submit");
 
 const app = {
-  server: 'http://localhost:3000/classes',
+  server: 'http://localhost:3000/messages',
   init : () => {
     fetch(app.server)
     .then((response) => response.json())

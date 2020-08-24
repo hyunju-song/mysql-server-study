@@ -12,11 +12,10 @@ var corsOptions = {
   methods: 'GET, PUT, POST, OPTIONS',    
   allowedHeaders: 'Content-Type, Accept',    
   maxAge: 10,
-  origin: process.env.CORS_ORIGIN || '*'
+  origin: '*'
 };
 
 //Connect controller methods to their corresponding routes
-router.get('/', cors({origin: 'http://localhost:3000/classes'}), (req, res) => {res.send('cors!')});
 
 router.get('/messages', cors(corsOptions), controller.messages.get);
 
@@ -25,6 +24,10 @@ router.post('/messages', cors(corsOptions), controller.messages.post);
 router.get('/users', cors(corsOptions), controller.users.get);
 
 router.post('/users', cors(corsOptions), controller.users.post);
+
+router.options('/messages', cors(corsOptions));
+
+router.options('/users', cors(corsOptions));
 
 
 module.exports = router;
