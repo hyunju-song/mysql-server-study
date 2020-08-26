@@ -1,6 +1,6 @@
 /*eslint-disable*/
 var db = require('../db');
-const connection = require('../db');
+//const connection = require('../db');
 
 //참고!! https://m.blog.naver.com/PostView.nhn?blogId=magnking&logNo=221170198329&proxyReferer=https:%2F%2Fwww.google.com%2F
 
@@ -9,31 +9,33 @@ module.exports = {
   messages: {
     get: function (callback) {
      var queryStr = `SELECT messages.id, messages.text, messages.roomname, users.username FROM messages
-        left join users ON messages.user_id = users.id`
+        LEFT OUTER JOIN users ON (messages.users_id = users.id) order by messages.id desc`;
       db.query(queryStr, (error, results) => {
           callback(error, results)
       });
     }, // a function which produces all the messages
     post: function (params, callback) {
-      var queryStr = 'INSERT INTO messages(users_id, roomname, text)  VALUE((select id from users where username = ? limit 1), ?, ?)'
-      db.query(queryStr, params, (error, results) => {
-        callback(error, results);
+      var queryStr = `INSERT INTO messages(roomname, text, users_id)  VALUE (?, ?,(select id from users where username = ? limit 1))`;
+      db.query(queryStr, params, (error,results) => {
+        callback(error,results);
     });
-    } // a function which can be used to insert a message into the database
+    console.log(params)
+    }
+     // a function which can be used to insert a message into the database
   },
 
   users: {
     // Ditto as above.
     //db와 모델 연결 후 sql 보여주기
     get: function (callback) {
-      var queryStr = 'SELECT * from users'
+      var queryStr = `SELECT * from users`;
        db.query(queryStr, (error, results) => {
           callback(error, results)
       });
     },
-    post: function (callback) {
-      var queryStr = 'INSERT INTO users(username) VALUE(?)'
-      db.query(queryStr, [username], (error, results) => {
+    post: function (params, callback) {
+      var queryStr = `INSERT INTO users(username) VALUE (?)`;
+      db.query(queryStr, params, (error,results) => {
         callback(error,results)
     })
   }

@@ -1,3 +1,4 @@
+/*eslint-disable*/
 // YOUR CODE HERE:
 
 let roomNameOption = [];
@@ -29,11 +30,12 @@ let room = document.querySelector("#input-room");
 let submit = document.querySelector("#submit");
 
 const app = {
-  server: 'http://localhost:3000/classes',
+  server: 'http://localhost:3000/classes/messages',
   init : () => {
     fetch(app.server)
     .then((response) => response.json())
     .then(json => {
+      console.log(json)
       app.roomnameIsNew(json);
     })
   },
@@ -66,6 +68,7 @@ const app = {
       })
       .then(res => res.json())
       .then(callback);
+    console.log(JSON.stringify(postMessage))
   },
   clearMessages : function(){
     document.querySelector('#chats').innerHTML = '';
@@ -137,6 +140,7 @@ const app = {
     postMessage.date = getToday();
     postMessage.id = id;
     id ++;
+    console.log(postMessage)
     if(!roomNameOption.includes(room.value)){
       roomNameOption.push(room.value);
       app.addRoomName(room.value , 
