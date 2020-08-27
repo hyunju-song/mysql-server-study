@@ -14,12 +14,15 @@ module.exports = {
           callback(error, results)
       });
     }, // a function which produces all the messages
-    post: function (params, callback) {
-      var queryStr = `INSERT INTO messages(roomname, text, users_id)  VALUE (?, ?,(select id from users where username = ? limit 1))`;
+    post: function (params, users, callback) {
+      db.query(`INSERT INTO users(username) VALUE (?)` , users); 
+      // username을 user에 안넣어주니까 인서트 할때, 참고할 username값이 없어서 에러가 뜨더라!
+      //결국 쿼리추가문을 하나 더 생성했는데 맞네! 추측대로 했는데! 다행이다
+      var queryStr = `INSERT INTO messages(roomname, text, users_id)  
+          VALUE (?, ?,(select id from users where username = ? limit 1))`;
       db.query(queryStr, params, (error,results) => {
         callback(error,results);
     });
-    console.log(params)
     }
      // a function which can be used to insert a message into the database
   },

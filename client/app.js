@@ -35,22 +35,29 @@ const app = {
     fetch(app.server)
     .then((response) => response.json())
     .then(json => {
-      console.log(json)
       app.roomnameIsNew(json);
     })
   },
   fetch : ()=>{
     window
-      .fetch(app.server)
-      .then(response => response.json())
-      .then(data => 
-        data.filter((elem)=>{
+      .fetch(app.server , {
+        headers : { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+         }
+      })
+      .then((response) => {
+        return response.json()})
+      .then((data) => {
+        //console.log(data)
+        return data.filter((elem)=>{
         if(elem.roomname === roomNameOption[document
           .querySelector('select').selectedIndex]){
           return true;
         }
-      }))
-      .then(con => {
+      })})
+      .then((con) => {
+        //console.log(con)
         app.clearMessages();
         for(let i=0;i<con.length;i++){
           app.renderMessage(con[i]);
@@ -67,8 +74,9 @@ const app = {
         }
       })
       .then(res => res.json())
-      .then(callback);
-    console.log(JSON.stringify(postMessage))
+      .then(app.fetch()) //실질적으로 두번 fetch
+      .then(app.clearForm());
+    //console.log(JSON.stringify(postMessage))
   },
   clearMessages : function(){
     document.querySelector('#chats').innerHTML = '';
@@ -78,7 +86,7 @@ const app = {
     user.value = "";
     room.value = "";
   },
-  renderMessage : function({username, text, roomname, date, id}){
+  renderMessage : function({username, text, roomname, id}){
     ///</ , />/ 이건 정규표현식의 일종으로 태그로 인식되는 < 나 > 가 입력되는 경우에 
     //&lt; 나 &gt;로 변환해준다는 말
     let tmpl = `<div class="dataId" data-id="${id}">
@@ -90,7 +98,7 @@ const app = {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
       }</p>
-      <p> date: ${date}</p>
+      <p> date: ${getToday()}</p>
       <p>roomname: ${roomname
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -103,7 +111,7 @@ const app = {
     let dataid = document.querySelector('#chats').firstChild.dataset.id;
     dataIdArr.push(dataid);
   },
-  addRoomName : function(data){
+  addRoomName : function(data ,callback){
     const optionTmpl = `<select>
       <option class="roomname-option"
       value = ${data}
@@ -111,10 +119,13 @@ const app = {
       </option>
       </select>`
     let select = document.querySelector('select');
-    select.innerHTML = select.innerHTML + optionTmpl;
+    //select.innerHTML = select.innerHTML + optionTmpl;
+    select.innerHTML = optionTmpl +select.innerHTML
     select.onchange = function(){
-      app.fetch();
+      app.fetch()
+      app.clearForm()
     }
+    callback();
    },
    roomnameIsNew : res => {
      res.forEach((elem) =>{
@@ -131,11 +142,17 @@ const app = {
     app.clearMessages();
     postMessage.username = user.value;
     postMessage.text = message.value;
-    if(room.value){
-      postMessage.roomname = room.value;
+    // if(room.value){
+    //   postMessage.roomname = room.value;
+    // } else {
+    //   postMessage.roomname = roomNameOption[document
+    //     .querySelector('select').selectedIndex];
+    // }
+    if(room.value === ""){
+      postMessage.roomname = roomNameOption[document.querySelector('select').selectedIndex]
+      room.value = postMessage.roomname //빈 룸네임이 자꾸 추가돼서
     } else {
-      postMessage.roomname = roomNameOption[document
-        .querySelector('select').selectedIndex];
+      postMessage.roomname = room.value;
     }
     postMessage.date = getToday();
     postMessage.id = id;
@@ -145,15 +162,16 @@ const app = {
       roomNameOption.push(room.value);
       app.addRoomName(room.value , 
         ()=>{
-          app.fetch();
-          app.clearForm();
+          app.fetch()
+          app.clearForm()
         });
     }
-    app.send(postMessage ,
-      ()=>{
-        app.fetch();
-        app.clearForm();
-      }
+    app.send(postMessage 
+      // ()=>{
+      //   app.fetch()
+      //   //.then(app.clearForm());
+      //   app.clearForm()
+      // } // callback을 못읽어줘서 then으로 처리
     );
   }
 };
