@@ -64,7 +64,7 @@ const app = {
         }
       });
   },
-  send : (postMessage, callback) => {
+  send : (postMessage) => {
     window
       .fetch(app.server,{
         method: 'POST',
@@ -111,7 +111,7 @@ const app = {
     let dataid = document.querySelector('#chats').firstChild.dataset.id;
     dataIdArr.push(dataid);
   },
-  addRoomName : function(data ,callback){
+  addRoomName : function(data){
     const optionTmpl = `<select>
       <option class="roomname-option"
       value = ${data}
@@ -119,13 +119,13 @@ const app = {
       </option>
       </select>`
     let select = document.querySelector('select');
-    //select.innerHTML = select.innerHTML + optionTmpl;
-    select.innerHTML = optionTmpl +select.innerHTML
+    select.innerHTML = select.innerHTML + optionTmpl;
+    //select.innerHTML = optionTmpl +select.innerHTML
     select.onchange = function(){
       app.fetch()
-      app.clearForm()
+      //app.clearForm()
     }
-    callback();
+    //callback();
    },
    roomnameIsNew : res => {
      res.forEach((elem) =>{
@@ -148,7 +148,7 @@ const app = {
     //   postMessage.roomname = roomNameOption[document
     //     .querySelector('select').selectedIndex];
     // }
-    if(room.value === ""){
+    if(!room.value){
       postMessage.roomname = roomNameOption[document.querySelector('select').selectedIndex]
       room.value = postMessage.roomname //빈 룸네임이 자꾸 추가돼서
     } else {
@@ -160,11 +160,13 @@ const app = {
     console.log(postMessage)
     if(!roomNameOption.includes(room.value)){
       roomNameOption.push(room.value);
-      app.addRoomName(room.value , 
-        ()=>{
-          app.fetch()
-          app.clearForm()
-        });
+      app.addRoomName(room.value 
+        // , 
+        // ()=>{
+        //   app.fetch()
+        //   app.clearForm()
+        // }
+        );
     }
     app.send(postMessage 
       // ()=>{
@@ -192,8 +194,8 @@ function autoFetch(){
   .then(json => {
     app.fetch();
     if(idHas){
-      let jsonId = json[json.length-1]['id'];
-      let dataLastId = dataIdArr[-1];
+      let jsonId = json[0]['id'];
+      let dataLastId = dataIdArr[0];
       if(jsonId === dataLastId){
         return;
       }
